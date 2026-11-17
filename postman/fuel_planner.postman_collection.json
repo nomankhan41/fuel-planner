@@ -1,0 +1,238 @@
+{
+  "info": {
+    "name": "Fuel Planner API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. New York -> Los Angeles (cold: 2 geocode + 1 route)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"New York, NY\",\n  \"finish\": \"Los Angeles, CA\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/route/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "route",
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Same trip again (fully cached: 0 geocode + 0 route)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"New York, NY\",\n  \"finish\": \"Los Angeles, CA\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/route/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "route",
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Chicago -> Houston, tank starts full",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"Chicago, IL\",\n  \"finish\": \"Houston, TX\",\n  \"start_tank_full\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/route/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "route",
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. Coordinates input (Seattle -> Miami, 0 geocode calls)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"47.6062,-122.3321\",\n  \"finish\": \"25.7617,-80.1918\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/route/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "route",
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. GET with query params",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/route/?start=Denver, CO&finish=Phoenix, AZ",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "route",
+            ""
+          ],
+          "query": [
+            {
+              "key": "start",
+              "value": "Denver, CO"
+            },
+            {
+              "key": "finish",
+              "value": "Phoenix, AZ"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Error: unknown city (404)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"Nowhereville, TX\",\n  \"finish\": \"Dallas, TX\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/route/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "route",
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "7. Error: missing field (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"Dallas, TX\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/route/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "route",
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "8. Error: outside USA (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"51.5074,-0.1278\",\n  \"finish\": \"Dallas, TX\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/route/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "route",
+            ""
+          ]
+        }
+      }
+    }
+  ]
+}

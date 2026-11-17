@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ trip.start.query }} → {{ trip.finish.query }} · Fuel plan</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; }
+    #map { position: absolute; inset: 0; }
+    .panel { position: absolute; top: 12px; right: 12px; z-index: 1000; background: #fff; padding: 12px 14px;
+             border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.2); max-width: 320px; max-height: 80vh; overflow: auto; font-size: 13px; }
+    .panel h1 { font-size: 15px; margin: 0 0 6px; }
+    .panel table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+    .panel td { padding: 3px 4px; border-top: 1px solid #eee; vertical-align: top; }
+    .num { text-align: right; white-space: nowrap; }
+    .pin { background: #d9480f; color: #fff; border-radius: 50%; width: 22px; height: 22px; line-height: 22px;
+           text-align: center; font-weight: 700; font-size: 12px; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<div class="panel">
+  <h1>{{ trip.start.query }} → {{ trip.finish.query }}</h1>
+  <div>{{ trip.distance_miles }} mi · {{ trip.total_gallons }} gal · <strong>${{ trip.total_fuel_cost }}</strong></div>
+  <table>
+    {% for s in trip.fuel_stops %}
+    <tr><td>{{ s.stop }}</td><td>{{ s.name }}<br><small>{{ s.city }}, {{ s.state }} · mile {{ s.mile_marker }}</small></td>
+        <td class="num">${{ s.price_per_gallon }}<br><small>{{ s.gallons }} gal</small></td></tr>
+    {% empty %}
+    <tr><td>No fuel stop needed.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{{ trip|json_script:"trip-data" }}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const trip = JSON.parse(document.getElementById("trip-data").textContent);
+  const map = L.map("map");
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", {
+    maxZoom: 19, attribution: "Tiles &copy; Esri"
+  }).addTo(map);
+  const line = L.geoJSON(trip.route, { style: { color: "#1c7ed6", weight: 5 } }).addTo(map);
+  L.marker([trip.start.lat, trip.start.lng]).addTo(map).bindPopup("Start: " + trip.start.query);
+  L.marker([trip.finish.lat, trip.finish.lng]).addTo(map).bindPopup("Finish: " + trip.finish.query);
+  trip.fuel_stops.forEach(s => {
+    const icon = L.divIcon({ className: "", html: `<div class="pin">${s.stop}</div>`, iconSize: [22, 22] });
+    L.marker([s.lat, s.lng], { icon }).addTo(map).bindPopup(
+      `<b>${s.stop}. ${s.name}</b><br>${s.address}<br>${s.city}, ${s.state}<br>` +
+      `Mile ${s.mile_marker} · $${s.price_per_gallon}/gal<br>${s.gallons} gal = $${s.cost}`);
+  });
+  map.fitBounds(line.getBounds(), { padding: [30, 30] });
+</script>
+</body>
+</html>
